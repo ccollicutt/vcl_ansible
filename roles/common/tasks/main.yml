@@ -1,0 +1,84 @@
+---
+
+#
+# Packages required for ansible to run
+# 
+- name: install packages required for ansible
+  yum: pkg=$item state=installed
+  with_items:
+    - libselinux-python
+
+#
+# ntp and timezone
+# 
+
+- name: set timezone
+  template: src=clock.j2 dest=/etc/sysconfig/clock
+
+- name: setup timezone link
+  #shell: ln -sf /usr/share/zoneinfo/{{timezone_country}}/{{timezone_city}} /etc/localtime
+  file: state=link src=/usr/share/zoneinfo/{{timezone_country}}/{{timezone_city}} dest=/etc/localtime
+
+- name: install ntp package
+  yum: pkg=ntp state=installed
+
+- name: check if ntp is syncronized
+  shell: ntpstat
+  register: ntp_syncronized
+  ignore_errors: True
+
+- name: stop ntpd to run ntpdate
+  service: name=ntpd state=stopped
+  when: ntp_syncronized.rc > 0
+  ignore_errors: True
+
+  # XXX FIX ME XXX
+- name: run ntpdate
+  shell: ntpdate {{ntpdate_timeserver}}
+  when: ntp_syncronized.rc > 0
+
+
+- name: ensure ntp service is running and enabled
+  service: name=ntpd state=started enabled=yes
+
+- name: check if ntp is syncronized
+  shell: ntpstat
+  when: ntp_syncronized.rc > 0
+
+#
+# Disable selinux
+#
+
+- name: disable selinux  
+  selinux: state=disabled
+
+#
+# Configure a custom repository at packages.serverascode.com/mrepo
+# that has the vcl, vcl-web, and vcl-managementnode RPMs
+#
+
+- name: install serverascode centos 6 yum repo
+  copy: src=serverascode-centos6.repo dest=/etc/yum.repos.d/serverascode-centos6.repo owner=root group=root mode=0644
+  notify:
+    - refresh yum cache
+
+#
+# Install rpmforge and epel repositories
+#
+
+- name: install rpmforge repository
+  yum: pkg=$item state=installed
+  with_items:
+    - rpmforge-release
+    - epel-release
+  notify:
+    - refresh yum cache
+
+#
+# had issues with dhclient, so am removing it if it's there
+# 
+
+- name: uninstall dhclient if it's installed
+  yum: pkg=dhclient state=removed
+
+ 

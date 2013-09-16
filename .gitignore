@@ -1,0 +1,5 @@
+production
+staging
+test
+group_vars/main.yml
+.DS_store
