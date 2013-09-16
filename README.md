@@ -1,3 +1,3 @@
 # Deploying Apache VCL using Ansible #
 
-This Ansible playbook will deploy Apache VCL.
+This Ansible playbook will deploy Apache VCL, hopefully by following Ansible's best practices.
