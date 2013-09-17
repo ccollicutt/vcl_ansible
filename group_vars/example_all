@@ -1,0 +1,51 @@
+---
+ntpdate_timeserver: time.srv.ualberta.ca
+timezone_country: America
+timezone_city: Edmonton
+
+# 
+# Install the cybera version of vcl or not?
+# 
+# Options: "cybera" or "normal"
+# 
+# Choosing "cybera" means installing the cybera RPMs and 
+# choosing "normal" means using the regular RPMs
+
+version: normal
+is_cybera_version: "'{{ version }}' == 'cybera'"
+is_normal_version: "'{{ version }}' == 'normal'" 
+
+#
+# Root password for windows images for vcld.conf
+#
+
+windows_root_password: CHANGME
+
+#
+# secrets.php variables
+#
+
+vcl_db_host: localhost
+vcl_db: vcl
+vcl_db_user: vcluser
+vcl_db_password: CHANGEME 
+vcl_pemkey: CHANGEME 
+vcl_cryptkey: CHANGEME 
+
+#
+# conf.php variables
+#
+
+vcl_domain: example.com 
+vcl_hostname: vcl-test 
+# email
+vcl_helpemail: vcl_help
+vcl_erroremail: webmaster
+vcl_envelopesender: webserver
+vcl_blocknotify: adminuser
+
+#
+# Install the openstack.pm VCL module?
+#
+
+openstack_vcl_module: False
