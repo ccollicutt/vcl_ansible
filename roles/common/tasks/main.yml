@@ -75,10 +75,24 @@
     - refresh yum cache
 
 #
-# had issues with dhclient, so am removing it if it's there
+# Had issues with dhclient, so am removing it if it's there
 # 
 
 - name: uninstall dhclient if it's installed
   yum: pkg=dhclient state=removed
+
+# 
+# XXX FIX ME XXX
+# Disable iptables -- ansible doesn't have a module for iptables yet, and 
+# the general consensus seems to be to use templates and don't quite have
+# time for that right now.
+
+#
+# Iptables
+#
+
+- name: disable iptables 
+  service: name=iptables state=stopped enabled=no
+
 
  

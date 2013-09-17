@@ -1,0 +1,58 @@
+---
+#
+# NOTE: This is the normal version
+# Make sure vcl-* are installed
+#
+
+- name: make sure vcl is installed
+  yum: pkg=vcl state=installed
+  when: is_normal_version
+- name: make sure vcl-managementnode is installed
+  yum: pkg=vcl-managementnode state=installed
+  when: is_normal_version
+
+#
+# NOTE: This is the cybera version...
+# Make sure vcl-cybera-* are installed
+#
+
+- name: make sure vcl-cybera is installed
+  yum: pkg=vcl-cybera state=installed
+  when: is_cybera_version
+- name: make sure vcl-cybera-managementnode is installed
+  yum: pkg=vcl-cybera-managementnode state=installed
+  when: is_cybera_version
+
+#
+# vcld configuration file
+#
+- name: copy over vcld.conf template
+  template: src=vcld.j2 dest=/etc/vcl/vcld.conf owner=root group=root mode=0640
+
+
+# XXX FIX ME XXX
+# Keys and such
+# 
+
+- name: make sure opensll is installed
+  yum: name=openssl state=installed
+
+- name: check if there is a keypair for vcl already
+  command: ls /etc/vcl/vcl.key
+  register: vcl_key_exists
+
+- name: create an ssh keypair for vcl
+  shell: /usr/bin/ssh-keygen -q -t dsa -C '' -N '' -f /etc/vcl/vcl.key
+  when: vcl_key_exists.rc > 0
+
+- name: check if there is a keys.pem file for vcl already
+  command: ls /usr/share/vcl-web/.ht-inc/keys.pem
+  register: vcl_pem_exists
+
+- name: generate key.pem
+  command: /usr/bin/openssl genrsa -aes256 -passout pass:{{ vcl_pemkey }} -out /usr/share/vcl-web/.ht-inc/keys.pem 2048
+  when: vcl_pem_exists.rc > 0
+
+- name: generate pubkey.pem
+  command: /usr/bin/openssl rsa -pubout -passin pass:{{ vcl_pemkey }} -in /usr/share/vcl-web/.ht-inc/keys.pem -out /usr/share/vcl-web/.ht-inc/pubkey.pem
+  when: vcl_pem_exists.rc > 0

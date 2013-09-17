@@ -1,0 +1,30 @@
+#
+# Install and turn on mysql
+#
+
+- name: ensure mysqld is installed
+  yum: pkg=mysql-server state=installed
+- name: make sure mysql is running  
+  service: name=mysqld state=running enabled=yes
+
+- name: ensure there is a mysql backup directory
+  file: dest=/var/lib/backups/mysql state=directory owner=root group=root mode=0750
+
+- name: copy over mysql backup script to cron (should be in an rpm...future work)
+  copy: src=mysql_backup.sh dest=/etc/cron.daily/mysql_backup.cron owner=root group=root mode=0755
+
+#
+# Database user
+# 
+
+- name: create vcl database
+  mysql_db: name={{ vcl_db }} state=present
+  register: database_exists
+
+- name: create vcl database user
+  mysql_user: name={{ vcl_db_user }} password={{ vcl_db_password }} priv={{ vcl_db }}.*:ALL state=present
+
+- name: initialize and import vcl database
+  shell: /usr/bin/mysql --user=root {{ vcl_db }} < /usr/share/doc/vcl-2.3/vcl.sql
+  when: database_exists.changed
+

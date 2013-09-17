@@ -1,5 +1,5 @@
 production
 staging
 test
-group_vars/main.yml
+group_vars/all
 .DS_store

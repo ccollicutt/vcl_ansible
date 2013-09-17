@@ -1,5 +1,4 @@
 ---
 - include: web.yml
-#- include: management-node.yml
-#- include: database.yml
-
+- include: database.yml
+- include: management-node.yml

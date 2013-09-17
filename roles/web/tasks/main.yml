@@ -1,0 +1,56 @@
+---
+
+#
+# Ansible required packages
+# 
+- name: install packages required for Ansible
+  yum: name=$item state=installed
+  with_items:
+    - MySQL-python
+
+
+#
+# NOTE: This is the normal version
+# Make sure vcl-* are installed
+#
+
+- name: make sure vcl is installed
+  yum: pkg=vcl state=installed
+  when: is_normal_version 
+- name: make sure vcl-web is installed
+  yum: pkg=vcl-web state=installed
+  when: is_normal_version
+
+#
+# NOTE: This is the cybera version...
+# Make sure vcl-cybera-* are installed
+#
+
+- name: make sure vcl-cybera is installed
+  yum: pkg=vcl-cybera state=installed
+  when: is_cybera_version
+- name: make sure vcl-cybera-web is installed
+  yum: pkg=vcl-cybera-web state=installed
+  when: is_cybera_version
+
+#
+# Apache
+#
+
+- name: ensure apache is installed
+  yum: pkg=httpd state=installed
+- name: make sure apache is running
+  service: name=httpd state=running enabled=yes
+- name: copy over the vcl.conf file
+  copy: src=vcl.conf dest=/etc/httpd/conf.d/vcl.conf owner=root group=root mode=0644
+  notify:
+    - restart apache
+
+#
+# VCL web GUI configuration
+#
+
+- name: copy over conf.php template
+  template: src=conf.j2 dest=/usr/share/vcl-web/.ht-inc/conf.php owner=root group=apache mode=0640
+- name: copy over secrets.php template
+  template: src=secrets.j2 dest=/usr/share/vcl-web/.ht-inc/secrets.php
