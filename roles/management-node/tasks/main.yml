@@ -26,12 +26,14 @@
 #
 # vcld configuration file
 #
+
 - name: copy over vcld.conf template
   template: src=vcld.j2 dest=/etc/vcl/vcld.conf owner=root group=root mode=0640
 
-
-# XXX FIX ME XXX
+#
 # Keys and such
+# 
+# Note that we are only creating keys and pem files if /etc/vcl/vcl.key does not exist.
 # 
 
 - name: make sure opensll is installed
@@ -62,7 +64,7 @@
 #
 # Install the openstack.pm module
 # XXX FIX ME XXX
-# Should perhaps use git?
+# Should perhaps use git? But then that would bring down whatever else is in the repo, eg. README file
 - name: install the openstack.pm module
   get_url: force=yes url=https://raw.github.com/cybera/openstack-vcl-module/master/openstack.pm dest=/usr/share/vcl-managementnode/lib/VCL/Module/Provisioning/openstack.pm
   when: openstack_vcl_module
