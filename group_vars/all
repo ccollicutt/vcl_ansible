@@ -1,4 +1,0 @@
----
-ntpdate_timeserver: time.srv.ualberta.ca
-timezone_country: America
-timezone_city: Edmonton
