@@ -15,6 +15,13 @@
 - name: set timezone
   template: src=clock.j2 dest=/etc/sysconfig/clock
 
+#
+# The file module refuses to create a link where a file exists, and 
+# initially the /etc/localtime file is a file. So had to fall back to
+# using ln -sf, which is not good. Perhaps should be creating a file 
+# instead of a link here.
+# 
+
 - name: setup timezone link
   shell: ln -sf /usr/share/zoneinfo/{{timezone_country}}/{{timezone_city}} /etc/localtime
   #file: state=link src=/usr/share/zoneinfo/{{timezone_country}}/{{timezone_city}} dest=/etc/localtime
@@ -39,7 +46,13 @@
 - name: ensure ntp service is running and enabled
   service: name=ntpd state=started enabled=yes
 
-# Not working...
+#
+# I was trying to use ntpstat to check if time is syncronized, but
+# even after time is setup Ok with ntpdate and ntpd is running, it 
+# still takes some time for the clock to line up properly. So this 
+# might not work, and have commented it out for now.
+#
+
 #- name: check if ntp is syncronized again
 #  shell: ntpstat
 #  when: ntp_syncronized.rc > 0
