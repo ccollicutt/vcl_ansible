@@ -40,6 +40,7 @@
 - name: check if there is a keypair for vcl already
   command: ls /etc/vcl/vcl.key
   register: vcl_key_exists
+  ignore_errors: True
 
 - name: create an ssh keypair for vcl
   shell: /usr/bin/ssh-keygen -q -t dsa -C '' -N '' -f /etc/vcl/vcl.key
@@ -48,6 +49,7 @@
 - name: check if there is a keys.pem file for vcl already
   command: ls /usr/share/vcl-web/.ht-inc/keys.pem
   register: vcl_pem_exists
+  ignore_errors: True
 
 - name: generate key.pem
   command: /usr/bin/openssl genrsa -aes256 -passout pass:{{ vcl_pemkey }} -out /usr/share/vcl-web/.ht-inc/keys.pem 2048
@@ -56,3 +58,9 @@
 - name: generate pubkey.pem
   command: /usr/bin/openssl rsa -pubout -passin pass:{{ vcl_pemkey }} -in /usr/share/vcl-web/.ht-inc/keys.pem -out /usr/share/vcl-web/.ht-inc/pubkey.pem
   when: vcl_pem_exists.rc > 0
+
+#
+# Start vcld
+# 
+- name: make sure vcld is running
+  service: name=vcld state=running

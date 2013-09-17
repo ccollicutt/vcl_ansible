@@ -1,0 +1,8 @@
+#
+# make a new cache for the repo that has vcl-*
+#
+- name: refresh yum cache
+  shell: /usr/bin/yum --disablerepo=\* --enablerepo=serverascode-CentOS-6 makecache
+
+- name: restart apache
+  service: name=httpd state=restarted

@@ -8,7 +8,6 @@
   with_items:
     - MySQL-python
 
-
 #
 # NOTE: This is the normal version
 # Make sure vcl-* are installed
@@ -47,10 +46,17 @@
     - restart apache
 
 #
+# Fix mcyrpt.so issue
+# 
+- name: fix mcrypt.so issue in php.d
+  lineinfile: dest=/etc/php.d/mcrypt.ini regexp=^extension= line=extension=mcrypt.so mode=0644
+  ignore_errors: True
+
+#
 # VCL web GUI configuration
 #
 
 - name: copy over conf.php template
   template: src=conf.j2 dest=/usr/share/vcl-web/.ht-inc/conf.php owner=root group=apache mode=0640
 - name: copy over secrets.php template
-  template: src=secrets.j2 dest=/usr/share/vcl-web/.ht-inc/secrets.php
+  template: src=secrets.j2 dest=/usr/share/vcl-web/.ht-inc/secrets.php mode=0644

@@ -16,8 +16,8 @@
   template: src=clock.j2 dest=/etc/sysconfig/clock
 
 - name: setup timezone link
-  #shell: ln -sf /usr/share/zoneinfo/{{timezone_country}}/{{timezone_city}} /etc/localtime
-  file: state=link src=/usr/share/zoneinfo/{{timezone_country}}/{{timezone_city}} dest=/etc/localtime
+  shell: ln -sf /usr/share/zoneinfo/{{timezone_country}}/{{timezone_city}} /etc/localtime
+  #file: state=link src=/usr/share/zoneinfo/{{timezone_country}}/{{timezone_city}} dest=/etc/localtime
 
 - name: install ntp package
   yum: pkg=ntp state=installed
@@ -32,18 +32,17 @@
   when: ntp_syncronized.rc > 0
   ignore_errors: True
 
-  # XXX FIX ME XXX
 - name: run ntpdate
   shell: ntpdate {{ntpdate_timeserver}}
   when: ntp_syncronized.rc > 0
 
-
 - name: ensure ntp service is running and enabled
   service: name=ntpd state=started enabled=yes
 
-- name: check if ntp is syncronized
-  shell: ntpstat
-  when: ntp_syncronized.rc > 0
+# Not working...
+#- name: check if ntp is syncronized again
+#  shell: ntpstat
+#  when: ntp_syncronized.rc > 0
 
 #
 # Disable selinux
