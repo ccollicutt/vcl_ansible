@@ -7,7 +7,7 @@ Note that a multihost configuration isn't tested yet, but this playbook is setup
 ## To use this playbook ##
 
 1. Copy `group_vars/example_all` to `group_vars/all` and edit as required, entering passwords, hostnames, domains, etc.
-2. Create an intentory file.
+2. Create an inventory file.
 
 ```
 [web]
@@ -18,4 +18,10 @@ vcl-test.example.com
 
 [database]
 vcl-test.example.com
+```
+
+3. Run the playbook.
+
+```
+$ ansible-playbook -i inventory_file site.yml
 ```
