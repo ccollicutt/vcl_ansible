@@ -60,7 +60,21 @@
   when: vcl_pem_exists.rc > 0
 
 #
+# Install the openstack.pm module
+# XXX FIX ME XXX
+# Should perhaps use git?
+- name: install the openstack.pm module
+  get_url: force=yes url=https://raw.github.com/cybera/openstack-vcl-module/master/openstack.pm dest=/usr/share/vcl-managementnode/lib/VCL/Module/Provisioning/openstack.pm
+  when: openstack_vcl_module
+
+#
+# Unless there is a management node configured in the database, I don't believe that 
+# vcld will startup.
+#
+
+#
 # Start vcld
-# 
-- name: make sure vcld is running
-  service: name=vcld state=running
+#
+
+#- name: make sure vcld is running
+#  service: name=vcld state=running
