@@ -24,7 +24,10 @@ vcl-test.example.com
 * Run the playbook.
 
 ```
-$ ansible-playbook -i inventory_file site.yml
+$ pip install ansible # if you don't have ansible
+$ ansible --version
+1.3.0
+$ ansible-playbook -i inventory_file site.yml # ...and watch as the output rolls by...
 ```
 
 Afterwards you should be able to access the website that you configured in the variables file.
