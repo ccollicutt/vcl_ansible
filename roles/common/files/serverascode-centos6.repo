@@ -1,6 +1,10 @@
-[serverascode-CentOS-6]
-name=serverascode Extra Packages for Enterprise Linux 6 - $basearch
-baseurl=http://packages.serverascode.com/rhel6/noarch/
-failovermethod=priority
-enabled=1
+[serverascode_vcl]
+name=serverascode_vcl
+baseurl=https://packagecloud.io/serverascode/vcl/el/6/$basearch
+repo_gpgcheck=1
 gpgcheck=0
+enabled=1
+gpgkey=https://packagecloud.io/gpg.key
+sslverify=1
+sslcacert=/etc/pki/tls/certs/ca-bundle.crt
+assumeyes=1
