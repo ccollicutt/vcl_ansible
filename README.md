@@ -33,3 +33,19 @@ $ ansible-playbook -i inventory_file site.yml # ...and watch as the output rolls
 Afterwards you should be able to access the website that you configured in the variables file.
 
 Note that there will still be a lot of database configuration to do via the webgui.
+
+## To deploy the Cybera "fork" of Apache VCL
+
+At this time Apache VCL does not officially support NAT or OpenStack, but Cybera does have a small "fork" of Apache VCL that does. If you would like to install that version of Apache VCL, then change:
+
+```bash
+version: normal
+```
+
+to 
+
+```bash
+version: cybera
+```
+
+in group_vars/all.

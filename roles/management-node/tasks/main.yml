@@ -24,29 +24,38 @@
   when: is_cybera_version
 
 #
+# Install novadns
+#
+- name: ensure novadns is installed
+  yum: name=novadns state=installed
+
+- name: copy over novadns.conf file
+  template: src=novadns.conf.j2 dest=/etc/novadns/novadns.conf mode=0640 group=root owner=root
+
+- name: start novadns
+  service: name=novadns state=running
+
+#
 # Make sure cpanm is installed so we can use the cpanm module
 #
+
 - name: ensure curl is installed
   yum: name=curl state=installed
 
 - name: test to see if cpanm is installed
   shell: perl -MApp::cpanminus -e1
-  register: result
+  register: cpanm
+  changed_when: cpanm.rc > 0
   ignore_errors: true
 
+# XXX - Not cool to pull in a script like this, but I haven't found a good way to automate
+#       installation of perl modules
 - name: install cpanm
   shell: curl -L http://cpanmin.us | perl - App::cpanminus
-  when: result|failed
-
-
-# XXX cpanm module not until ansible 1.6 XXX
-# Install cpan openstack module
-#
-#- name: ensure cpan openstack module is installed
-#  cpanm: name=Net::OpenStack::Compute state=
+  when: cpanm|failed
 
 - name: ensure required perl modules to install openstack compute module are installed
-  shell: cpanm {{ item }}
+  shell: /usr/local/bin/cpanm --force {{ item }}
   with_items:
     - "Test::Most"
     - "Time::HiRes"
@@ -55,11 +64,13 @@
 # Want to see higher than 6.03 I think...
 # perl -MLWP -e 'print "$LWP::VERSION\n"'
 # 6.05
+
+# XXX - not idempotent
 - name: update libwww-perl (LWP) because the OS version does not do ssl very well
-  shell: cpanm LWP
+  shell: /usr/local/bin/cpanm LWP
 
 - name: install Net::OpenStack::Compute perl module
-  shell: cpanm Net::OpenStack::Compute
+  shell: /usr/local/bin/cpanm Net::OpenStack::Compute
 
 #
 # vcld configuration file
@@ -81,15 +92,18 @@
   command: ls /etc/vcl/vcl.key
   register: vcl_key_exists
   ignore_errors: True
+  changed_when: vcl_key_exists.rc > 0
 
 - name: create an ssh keypair for vcl
   shell: /usr/bin/ssh-keygen -q -t dsa -C '' -N '' -f /etc/vcl/vcl.key
   when: vcl_key_exists.rc > 0
 
+
 - name: check if there is a keys.pem file for vcl already
   command: ls /usr/share/vcl-web/.ht-inc/keys.pem
   register: vcl_pem_exists
   ignore_errors: True
+  changed_when: vcl_pem_exists.rc > 0
 
 - name: generate key.pem
   command: /usr/bin/openssl genrsa -aes256 -passout pass:{{ vcl_pemkey }} -out /usr/share/vcl-web/.ht-inc/keys.pem 2048
@@ -101,8 +115,8 @@
 
 #
 # Install the openstack.pm module
-# XXX FIX ME XXX
-# Should perhaps use git? But then that would bring down whatever else is in the repo, eg. README file
+#
+
 - name: install the openstack.pm module
   get_url: force=yes url=https://raw.githubusercontent.com/cybera/openstack-vcl-module/master/openstack.pm dest=/usr/share/vcl-managementnode/lib/VCL/Module/Provisioning/openstack.pm
   when: openstack_vcl_module

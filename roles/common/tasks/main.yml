@@ -33,6 +33,7 @@
   shell: ntpstat
   register: ntp_syncronized
   ignore_errors: True
+  changed_when: ntp_syncronized.rc > 0
 
 - name: stop ntpd to run ntpdate
   service: name=ntpd state=stopped
@@ -65,37 +66,44 @@
   selinux: state=disabled
 
 #
-# Configure a custom repository at packages.serverascode.com/mrepo
-# that has the vcl, vcl-web, and vcl-managementnode RPMs
+# Configure a custom repository 
 #
 
-- name: install serverascode centos 6 yum repo
+- name: install serverascode centos 6 packagecloud repo
   copy: src=serverascode-centos6.repo dest=/etc/yum.repos.d/serverascode-centos6.repo owner=root group=root mode=0644
   notify:
     - refresh yum cache
+
+# XXX This was not working? Problem with packagecloud?
+#- name: import packagecloud gpg key
+#  command: rpm --import https://packagecloud.io/gpg.key
 
 #
 # Install epel repository
 #
 
-- name: install epel repository
-  yum: pkg={{ item }} state=installed
-  with_items:
-    - epel-release
+- name: install epel repository rpm
+  shell: rpm -ih http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm creates=/etc/yum.repos.d/epel.repo
+  ignore_errors: True
   notify:
     - refresh yum cache
 
 #
 # Install rpmforge
 #
+
 - name: install rpmforge repository
   command: rpm -ih http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm creates=/etc/yum.repos.d/rpmforge.repo
+  ignore_errors: True
+  notify:
+    - refresh yum cache
 
 #
-# XXX FIX ME XXX
-# Disable iptables -- ansible doesn't have a module for iptables yet, and
-# the general consensus seems to be to use templates and don't quite have
-# time for that right now.
+# Makecache
+#
+
+#- name: Makecache
+#  command: yum makecache
 
 #
 # Iptables
