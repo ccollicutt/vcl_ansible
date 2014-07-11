@@ -28,12 +28,15 @@
 #
 - name: ensure novadns is installed
   yum: name=novadns state=installed
+  when: is_cybera_version
 
 - name: copy over novadns.conf file
   template: src=novadns.conf.j2 dest=/etc/novadns/novadns.conf mode=0640 group=root owner=root
+  when: is_cybera_version
 
 - name: start novadns
   service: name=novadns state=running
+  when: is_cybera_version
 
 #
 # Make sure cpanm is installed so we can use the cpanm module
