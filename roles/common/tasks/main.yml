@@ -22,9 +22,14 @@
 # instead of a link here.
 #
 
+- name: check if /etc/localtime is a link
+  stat: path=/etc/localtime
+  register: localtime_file
+
 - name: setup timezone link
   shell: ln -sf /usr/share/zoneinfo/{{timezone_country}}/{{timezone_city}} /etc/localtime
   #file: state=link src=/usr/share/zoneinfo/{{timezone_country}}/{{timezone_city}} dest=/etc/localtime
+  when: localtime_file.stat.islink is defined and localtime_file.stat.islink == False
 
 - name: install ntp package
   yum: pkg=ntp state=installed

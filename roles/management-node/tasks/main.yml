@@ -50,30 +50,41 @@
   register: cpanm
   changed_when: cpanm.rc > 0
   ignore_errors: true
+  when: is_cybera_version
 
 # XXX - Not cool to pull in a script like this, but I haven't found a good way to automate
 #       installation of perl modules
 - name: install cpanm
-  shell: curl -L http://cpanmin.us | perl - App::cpanminus
+  shell: curl -L http://cpanmin.us | perl - App::cpanminus creates=/usr/local/bin/cpanm
   when: cpanm|failed
 
+- name: create symlink to cpanm so ansible can find it on the path
+  file: src=/usr/local/bin/cpanm dest=/usr/bin/cpanm state=link
+
 - name: ensure required perl modules to install openstack compute module are installed
-  shell: /usr/local/bin/cpanm --force {{ item }}
+  #shell: /usr/local/bin/cpanm --force {{ item }}
+  cpanm: name={{ item }}
   with_items:
     - "Test::Most"
     - "Time::HiRes"
     - "Data::Dumper::Names"
+    - "LWP"
+    - "Net::OpenStack::Compute"
+  when: is_cybera_version
+
 
 # Want to see higher than 6.03 I think...
 # perl -MLWP -e 'print "$LWP::VERSION\n"'
 # 6.05
 
 # XXX - not idempotent
-- name: update libwww-perl (LWP) because the OS version does not do ssl very well
-  shell: /usr/local/bin/cpanm LWP
+#- name: update libwww-perl (LWP) because the OS version does not do ssl very well
+#  shell: /usr/local/bin/cpanm LWP
+#  when: is_cybera_version
 
-- name: install Net::OpenStack::Compute perl module
-  shell: /usr/local/bin/cpanm Net::OpenStack::Compute
+#- name: install Net::OpenStack::Compute perl module
+#  shell: /usr/local/bin/cpanm Net::OpenStack::Compute
+#  when: is_cybera_version
 
 #
 # vcld configuration file
@@ -88,7 +99,7 @@
 # Note that we are only creating keys and pem files if /etc/vcl/vcl.key does not exist.
 #
 
-- name: make sure opensll is installed
+- name: make sure openssl is installed
   yum: name=openssl state=installed
 
 - name: check if there is a keypair for vcl already

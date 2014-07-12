@@ -1,4 +1,22 @@
 ---
-- include: web.yml
-- include: database.yml
-- include: management-node.yml
+
+- hosts: 
+  - all
+  roles:
+  - common
+
+- hosts:
+  - web
+  roles:
+  - web
+
+- hosts:
+  - database
+  roles:
+  - database
+
+- hosts:
+  - management-node
+  roles:
+  - management-node
+

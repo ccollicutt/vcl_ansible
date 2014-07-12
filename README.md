@@ -4,6 +4,10 @@ This Ansible playbook will deploy Apache VCL, hopefully by following Ansible's b
 
 Note that a multihost configuration isn't tested yet, but this playbook is setup to support that at some point.
 
+## Requirements
+
+* Ansible 1.6+ which has the cpanm module
+
 ## To use this playbook ##
 
 * Copy `group_vars/example_all` to `group_vars/all` and edit as required, entering passwords, hostnames, domains, etc.
