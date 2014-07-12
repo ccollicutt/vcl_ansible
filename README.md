@@ -29,8 +29,6 @@ vcl-test.example.com
 
 ```
 $ pip install ansible # if you don't have ansible
-$ ansible --version
-1.3.0
 $ ansible-playbook -i inventory_file site.yml # ...and watch as the output rolls by...
 ```
 
